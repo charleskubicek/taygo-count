@@ -1,8 +1,9 @@
 from dulwich.diff_tree import tree_changes
+from dulwich.repo import Repo
+import argparse
 
 
 class Calculator(object):
-
     @staticmethod
     def has_change_in_dirs(diffs, app_dirs):
         for dirs in app_dirs:
@@ -13,7 +14,8 @@ class Calculator(object):
         return False
 
     def calculate_ratio(self, diffs, app_dirs, test_dirs):
-        tested_commmit_count = 0
+        print diffs
+        tested_commit_count = 0
         untested_commit_count = 0
 
         for diff in diffs:
@@ -21,18 +23,19 @@ class Calculator(object):
             test_changes = self.has_change_in_dirs(diff, test_dirs)
 
             if app_changes and test_changes:
-                tested_commmit_count += 1
+                tested_commit_count += 1
             elif app_changes and not test_changes:
                 untested_commit_count += 1
 
-        total = untested_commit_count + tested_commmit_count
+        total = untested_commit_count + tested_commit_count
 
         return float(total - untested_commit_count) / float(total)
 
+
 class Git(object):
     @staticmethod
-    def get_commit_file_diffs(repo):
-
+    def get_commit_file_diffs(repo_path):
+        repo = Repo(repo_path)
         prev = None
         walker = repo.get_graph_walker()
 
@@ -50,7 +53,8 @@ class Git(object):
             this_commit_changes = []
 
             for x in tree_changes(repo, prev, commit.tree):
-                this_commit_changes.append(x.old.path)
+                if x.old.path is not None:
+                    this_commit_changes.append(x.old.path)
 
             commit_changes.append(this_commit_changes)
 
@@ -58,3 +62,18 @@ class Git(object):
             cset = walker.next()
 
         return commit_changes
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='show ratio between application code and test code in commits')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Print debug output')
+    parser.add_argument('-q', '--quiet', action='store_true', help='show only percent')
+    parser.add_argument('repo', type=str, help='git repository to scan')
+    args = parser.parse_args()
+    repo = args.repo
+
+    app_dirs = ['taygo']
+    test_dirs = ['test']
+
+    ratio = Calculator().calculate_ratio(Git().get_commit_file_diffs(repo), app_dirs, test_dirs)
+    print(str(ratio))

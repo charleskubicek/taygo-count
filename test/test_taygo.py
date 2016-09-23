@@ -32,7 +32,7 @@ class TaygoTests(unittest.TestCase):
         self.commit_files(repo, '.git_ignore')
         self.commit_files(repo, 'src/foo', 'test/foo_test')
 
-        diffs = self.git.get_commit_file_diffs(repo)
+        diffs = self.git.get_commit_file_diffs(repo.path)
         self.assertListEqual(diffs, [['src/foo', 'test/foo_test'], ['.git_ignore']])
 
     def test_should_calcualte_ratios(self):
