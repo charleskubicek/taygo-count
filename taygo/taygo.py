@@ -31,9 +31,18 @@ class Calculator(object):
         total = untested_commit_count + tested_commit_count
 
         if total == 0:
-            return float('nan')
+            ratio = float('nan')
         else:
-            return float(total - untested_commit_count) / float(total)
+            ratio = float(total - untested_commit_count) / float(total)
+
+        return AnalysisResult(tested_commit_count, untested_commit_count, ratio)
+
+
+class AnalysisResult(object):
+    def __init__(self, tested_commit_count=0, untested_commit_count=0, ratio=0.0):
+        self.tested_commit_count = tested_commit_count
+        self.untested_commit_count = untested_commit_count
+        self.ratio = ratio
 
 
 class Git(object):
@@ -95,10 +104,12 @@ if __name__ == '__main__':
     args = ArgParser().get_args(sys.argv[1:])
     repo = args.repo
 
-    app_dirs = ['api/src/main/java']
-    test_dirs = ['api/src/test/java']
+    app_dirs = ['src/main/scala']
+    test_dirs = ['src/test/scala']
 
     commits = Git().get_commit_file_diffs(repo, max_commit_count=int(args.commit_count))
-    ratio = Calculator().calculate_ratio(commits.commit_changes, app_dirs, test_dirs)
+    calc_result = Calculator().calculate_ratio(commits.commit_changes, app_dirs, test_dirs)
 
-    print "%s from %s commits" % (str(ratio), str(commits.commit_count))
+    print "%s from %s commits. %s/%s" % (
+        str(calc_result.ratio), str(commits.commit_count), str(calc_result.tested_commit_count),
+        str(calc_result.untested_commit_count))

@@ -38,10 +38,10 @@ class TaygoTests(unittest.TestCase):
         self.assertEqual(10, len(self.git.get_commit_file_diffs(repo.path, max_commit_count=10).commit_changes))
 
     def test_should_calcualte_ratios(self):
-        self.assertEqual(1.0, self.calc.calculate_ratio([['readme.md'], ['src/foo', 'test/foo_test']], ['src'], ['test']))
+        self.assertEqual(1.0, self.calc.calculate_ratio([['readme.md'], ['src/foo', 'test/foo_test']], ['src'], ['test']).ratio)
 
     def test_should_calcualte_ratio_nan_if_no_commits(self):
-        self.assertTrue(math.isnan(self.calc.calculate_ratio([], ['src'], ['test'])))
+        self.assertTrue(math.isnan(self.calc.calculate_ratio([], ['src'], ['test']).ratio))
 
     def test_should_find_app_change(self):
         self.assertTrue(self.calc.has_change_in_dirs(['src/foo'], ['src']))
