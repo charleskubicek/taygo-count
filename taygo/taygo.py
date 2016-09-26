@@ -71,7 +71,14 @@ class Git(object):
             else:
                 cset = walker.next()
 
-        return commit_changes
+        return RepoDiffResult(repo_path, commit_changes, commit_count)
+
+
+class RepoDiffResult(object):
+    def __init__(self, repo, commit_changes, commit_count=0):
+        self.repo = repo
+        self.commit_changes = commit_changes
+        self.commit_count = commit_count
 
 
 class ArgParser(object):
@@ -88,10 +95,10 @@ if __name__ == '__main__':
     args = ArgParser().get_args(sys.argv[1:])
     repo = args.repo
 
-    app_dirs = ['src/main/java']
-    test_dirs = ['src/test/java']
+    app_dirs = ['api/src/main/java']
+    test_dirs = ['api/src/test/java']
 
     commits = Git().get_commit_file_diffs(repo, max_commit_count=int(args.commit_count))
-    ratio = Calculator().calculate_ratio(commits, app_dirs, test_dirs)
+    ratio = Calculator().calculate_ratio(commits.commit_changes, app_dirs, test_dirs)
 
-    print(str(ratio))
+    print "%s from %s commits" % (str(ratio), str(commits.commit_count))

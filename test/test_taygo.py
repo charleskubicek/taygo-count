@@ -26,7 +26,7 @@ class TaygoTests(unittest.TestCase):
         self.add_and_commit_files(repo, '.git_ignore')
         self.add_and_commit_files(repo, 'src/foo', 'test/foo_test')
 
-        diffs = self.git.get_commit_file_diffs(repo.path)
+        diffs = self.git.get_commit_file_diffs(repo.path).commit_changes
         self.assertListEqual(diffs, [['src/foo', 'test/foo_test'], ['.git_ignore']])
 
     def test_should_honor_max_commit_count(self):
@@ -35,7 +35,7 @@ class TaygoTests(unittest.TestCase):
         for i in range(0, 12):
             self.add_and_commit_files(repo, 'file %s.txt' % i)
 
-        self.assertEqual(10, len(self.git.get_commit_file_diffs(repo.path, max_commit_count=10)))
+        self.assertEqual(10, len(self.git.get_commit_file_diffs(repo.path, max_commit_count=10).commit_changes))
 
     def test_should_calcualte_ratios(self):
         self.assertEqual(1.0, self.calc.calculate_ratio([['readme.md'], ['src/foo', 'test/foo_test']], ['src'], ['test']))
